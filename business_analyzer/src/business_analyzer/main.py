@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys
 from business_analyzer.crew import BusinessAnalyzerCrew
+from dotenv import load_dotenv
+load_dotenv()
 
 # This main file is intended to be a way for your to run your
 # crew locally, so refrain from adding necessary logic into this file.
@@ -12,7 +14,7 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'AI LLMs'
+        'company': 'Apple'
     }
     BusinessAnalyzerCrew().crew().kickoff(inputs=inputs)
 

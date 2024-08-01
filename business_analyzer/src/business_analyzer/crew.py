@@ -1,5 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from crewai_tools import ScrapeWebsiteTool
+from tools.custom_tool import StockNewsTool, StockPriceTool, IncomeStmtTool, BalanceSheetTool, InsiderTransactionsTool
 
 # Uncomment the following line to use an example of a custom tool
 # from business_analyzer.tools.custom_tool import MyCustomTool
@@ -13,34 +15,70 @@ class BusinessAnalyzerCrew():
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
 
+	# @llm
+	# def chatgpt_llm(self):
+	# return ChatGroq(temperature=0, model_name="gpt-4o")
+
 	@agent
 	def researcher(self) -> Agent:
 		return Agent(
 			config=self.agents_config['researcher'],
+			tools = [ScrapeWebsiteTool(), StockNewsTool()],
 			# tools=[MyCustomTool()], # Example of custom tool, loaded on the beginning of file
 			verbose=True
 		)
 
 	@agent
-	def reporting_analyst(self) -> Agent:
+	def technical_analyst(self) -> Agent:
 		return Agent(
-			config=self.agents_config['reporting_analyst'],
+			config=self.agents_config['technical_analyst'],
+			tools = [StockPriceTool()],
+			verbose=True
+		)
+
+	@agent
+	def financial_analyst(self) -> Agent:
+		return Agent(
+			config=self.agents_config['financial_analyst'],
+			tools = [IncomeStmtTool(), BalanceSheetTool(), InsiderTransactionsTool()],
+			verbose=True
+		)
+
+	@agent
+	def hedge_fund_manager(self) -> Agent:
+		return Agent(
+			config=self.agents_config['hedge_fund_manager'],
 			verbose=True
 		)
 
 	@task
-	def research_task(self) -> Task:
+	def research(self) -> Task:
 		return Task(
-			config=self.tasks_config['research_task'],
+			config=self.tasks_config['research'],
 			agent=self.researcher()
+		)
+	
+	@task
+	def technical_analysis(self) -> Task:
+		return Task(
+			config=self.tasks_config['technical_analysis'],
+			agent=self.technical_analyst()
 		)
 
 	@task
-	def reporting_task(self) -> Task:
+	def financial_analysis(self) -> Task:
 		return Task(
-			config=self.tasks_config['reporting_task'],
-			agent=self.reporting_analyst(),
-			output_file='report.md'
+			config=self.tasks_config['financial_analysis'],
+			agent=self.financial_analyst()
+		)
+	
+	@task
+	def investment_recommendation(self) -> Task:
+		return Task(
+			config=self.tasks_config['investment_recommendation'],
+			agent=self.hedge_fund_manager(),
+			context=[self.research(), self.technical_analysis(), self.financial_analysis()],
+			output_file='investment_recommendation.md'
 		)
 
 	@crew
