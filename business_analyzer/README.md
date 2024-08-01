@@ -32,6 +32,8 @@ poetry install
 
 ## Running the Project
 
+First, change directory to src/business_analyzer
+
 To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
 
 ```bash
