@@ -1,5 +1,6 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from tools.custom_tool import GlobalNewsResearchTool, LocalNewsResearchTool
 
 # Uncomment the following line to use an example of a custom tool
 # from news_reporter.tools.custom_tool import MyCustomTool
@@ -14,33 +15,50 @@ class NewsReporterCrew():
 	tasks_config = 'config/tasks.yaml'
 
 	@agent
-	def researcher(self) -> Agent:
+	def global_news_reporter(self) -> Agent:
 		return Agent(
-			config=self.agents_config['researcher'],
-			# tools=[MyCustomTool()], # Example of custom tool, loaded on the beginning of file
+			config=self.agents_config['global_news_reporter'],
+			tools=[GlobalNewsResearchTool()],
 			verbose=True
 		)
 
 	@agent
-	def reporting_analyst(self) -> Agent:
+	def local_news_reporter(self) -> Agent:
 		return Agent(
-			config=self.agents_config['reporting_analyst'],
+			config=self.agents_config['local_news_reporter'],
+			tools=[LocalNewsResearchTool()],
+			verbose=True
+		)
+	
+	@agent
+	def editor(self) -> Agent:
+		return Agent(
+			config=self.agents_config['editor'],
 			verbose=True
 		)
 
 	@task
-	def research_task(self) -> Task:
+	def global_news_research(self) -> Task:
 		return Task(
-			config=self.tasks_config['research_task'],
-			agent=self.researcher()
+			config=self.tasks_config['global_news_research'],
+			agent=self.global_news_reporter(),
+			output_file='global_report.md'
 		)
-
+	
 	@task
-	def reporting_task(self) -> Task:
+	def local_news_research(self) -> Task:
 		return Task(
-			config=self.tasks_config['reporting_task'],
-			agent=self.reporting_analyst(),
-			output_file='report.md'
+			config=self.tasks_config['local_news_research'],
+			agent=self.local_news_reporter(),
+			output_file='korean_report.md'
+		)
+	
+	@task
+	def publish_news(self) -> Task:
+		return Task(
+			config=self.tasks_config['publish_news'],
+			agent=self.editor(),
+			output_file='final_report.md'
 		)
 
 	@crew
