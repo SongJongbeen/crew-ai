@@ -14,7 +14,7 @@ def run():
     Run the crew.
     """
     inputs = {
-        'company': 'Apple'
+        'company': 'NVIDIA'
     }
     BusinessAnalyzerCrew().crew().kickoff(inputs=inputs)
 
